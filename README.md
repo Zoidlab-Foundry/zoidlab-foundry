@@ -10,8 +10,8 @@ across every subdomain app.
 | App | What it is | Live at |
 |-----|-----------|---------|
 | **Foundry** (this repo) | The hub / front door — one sign-in, launch everything | [foundry.zoidlab.ai](https://foundry.zoidlab.ai) |
-| **AI Workflow Builder** | Visually build, test, and deploy AI workflows on the Nyquest runtime | [builder.zoidlab.ai](https://builder.zoidlab.ai) · [repo](https://github.com/256kMagic/zoidlab-builder) |
-| **Agent Marketplace** | Browse, test, install, clone, and publish reusable AI agents | [marketplace.zoidlab.ai](https://marketplace.zoidlab.ai) · [repo](https://github.com/256kMagic/zoidlab-marketplace) |
+| **AI Workflow Builder** | Visually build, test, and deploy AI workflows on the Nyquest runtime | [builder.zoidlab.ai](https://builder.zoidlab.ai) · [repo](https://github.com/Zoidlab-Foundry-m/zoidlab-builder) |
+| **Agent Marketplace** | Browse, test, install, clone, and publish reusable AI agents | [marketplace.zoidlab.ai](https://marketplace.zoidlab.ai) · [repo](https://github.com/Zoidlab-Foundry-m/zoidlab-marketplace) |
 
 ## Access model — Nyquest Pro
 
