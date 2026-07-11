@@ -1,33 +1,56 @@
 "use client";
 import { useEffect, useState } from "react";
 
-// Handoff landing: the Nyquest app links here with a one-time code in the URL
-// fragment (#c=…). We exchange it for the shared session, then enter the hub.
+// Handoff landing: the Nyquest app opens this page, then (after a short async
+// round-trip to mint a one-time code) sets our URL fragment to #c=<code>.
+// Because the opener changes only the fragment, the page does NOT reload — so we
+// exchange on load AND on every hashchange, and stay in the "working" state
+// until a code actually arrives (with a safety timeout).
 export default function Enter() {
-  const [state, setState] = useState<"working" | "no-token" | "not-pro" | "failed">("working");
+  const [state, setState] = useState<"working" | "not-pro" | "failed">("working");
 
   useEffect(() => {
-    const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
-    const search = new URLSearchParams(location.search);
-    const code = hash.get("c") || search.get("c");
-    const token = hash.get("t") || search.get("t");
-    const body = code ? { code } : token ? { token } : null;
-    if (!body) { setState("no-token"); return; }
-    fetch("/api/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-      .then(async (r) => {
-        if (r.ok) {
-          history.replaceState(null, "", "/");
-          location.href = "/";
-        } else {
-          const j = await r.json().catch(() => ({}));
-          setState(j.error === "pro_required" ? "not-pro" : "failed");
-        }
+    let done = false;
+
+    const exchange = (): boolean => {
+      if (done) return true;
+      const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+      const search = new URLSearchParams(location.search);
+      const code = hash.get("c") || search.get("c");
+      const token = hash.get("t") || search.get("t");
+      const body = code ? { code } : token ? { token } : null;
+      if (!body) return false; // no code yet — keep waiting
+      done = true;
+      fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       })
-      .catch(() => setState("failed"));
+        .then(async (r) => {
+          if (r.ok) {
+            history.replaceState(null, "", "/");
+            location.href = "/";
+          } else {
+            const j = await r.json().catch(() => ({}));
+            setState(j.error === "pro_required" ? "not-pro" : "failed");
+          }
+        })
+        .catch(() => setState("failed"));
+      return true;
+    };
+
+    if (exchange()) return; // code was already present on load
+
+    // Wait for the opener to drop in the one-time code.
+    const onHash = () => exchange();
+    window.addEventListener("hashchange", onHash);
+    const timer = setTimeout(() => {
+      if (!done) setState("failed");
+    }, 20000);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
@@ -45,7 +68,7 @@ export default function Enter() {
             <p className="text-[13px] leading-relaxed text-dim">Your Nyquest account isn’t on a Pro or Teams plan. Upgrade at <a className="text-cy" href="https://app.nyquest.ai/pricing">app.nyquest.ai/pricing</a> to get in.</p>
           </>
         )}
-        {(state === "failed" || state === "no-token") && (
+        {state === "failed" && (
           <>
             <p className="mb-2 text-[15px] font-semibold text-ink">Couldn’t sign you in</p>
             <p className="text-[13px] leading-relaxed text-dim">Open ZoidLab from your Nyquest app to get a fresh link, or <a className="text-cy" href="https://app.nyquest.ai">sign in to Nyquest</a> first.</p>
