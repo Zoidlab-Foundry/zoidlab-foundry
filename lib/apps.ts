@@ -20,4 +20,13 @@ export const APPS: AppEntry[] = [
     accent: "#4fd1c5",
     status: "live",
   },
+  {
+    slug: "marketplace",
+    name: "Agent Marketplace",
+    tagline: "Browse, test, install, and publish reusable AI agents across Nyquest.",
+    url: "https://marketplace.zoidlab.ai",
+    glyph: "◆",
+    accent: "#7c5cfc",
+    status: "live",
+  },
 ];

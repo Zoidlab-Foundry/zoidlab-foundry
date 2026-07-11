@@ -1,9 +1,32 @@
 # ZoidLab Foundry
 
-The front door for the ZoidLab app suite — an authenticated launcher at
-**foundry.zoidlab.ai**. Sign in once with your Nyquest Pro account and launch any
-ZoidLab app; the session cookie is scoped to `.zoidlab.ai`, so it carries across every
-subdomain app (builder, and whatever's next).
+The front door for the **ZoidLab** platform — the living lab of [Nyquest](https://nyquest.ai).
+Foundry is an authenticated launcher at **foundry.zoidlab.ai**: sign in once with your Nyquest
+account and launch any ZoidLab app. The session cookie is scoped to `.zoidlab.ai`, so it carries
+across every subdomain app.
+
+## The ZoidLab platform
+
+| App | What it is | Live at |
+|-----|-----------|---------|
+| **Foundry** (this repo) | The hub / front door — one sign-in, launch everything | [foundry.zoidlab.ai](https://foundry.zoidlab.ai) |
+| **AI Workflow Builder** | Visually build, test, and deploy AI workflows on the Nyquest runtime | [builder.zoidlab.ai](https://builder.zoidlab.ai) · [repo](https://github.com/256kMagic/zoidlab-builder) |
+| **Agent Marketplace** | Browse, test, install, clone, and publish reusable AI agents | [marketplace.zoidlab.ai](https://marketplace.zoidlab.ai) · [repo](https://github.com/256kMagic/zoidlab-marketplace) |
+
+## Access model — Nyquest Pro
+
+ZoidLab has **no separate login**. Your **Nyquest** account *is* your ZoidLab identity:
+
+- Sign in through Nyquest (open Foundry, or the "ZoidLab" link in the Nyquest app). The token
+  is exchanged for a short-lived one-time code, never placed in a URL.
+- **A Nyquest Pro or Teams plan is required** to use the apps (Foundry + Builder are Pro-gated;
+  Marketplace browsing is open, but installing / cloning / publishing require sign-in).
+- One signed session (`zb_session`, `Domain=.zoidlab.ai`) is trusted by every `*.zoidlab.ai` app —
+  log in once, use them all. Workflow runs and agent actions bill **your own Nyquest wallet**.
+- No Nyquest account yet? Get one at [app.nyquest.ai](https://app.nyquest.ai).
+
+---
+
 
 ## What it is
 - Next.js launcher. Nyquest Pro SSO (same handoff/session flow as the builder, reused).
