@@ -4,9 +4,12 @@ import { APPS } from "../lib/apps";
 
 export default function Home() {
   const [user, setUser] = useState<{ email: string; tier: string } | null>(null);
+  const [stats, setStats] = useState<Record<string, { label: string; count: number | null; ok: boolean }> | null>(null);
 
   useEffect(() => {
-    fetch("/api/whoami").then((r) => (r.ok ? r.json() : null)).then((u) => u && setUser(u)).catch(() => {});
+    fetch("/api/whoami").then((r) => (r.ok ? r.json() : null)).then((u) => {
+      if (u) { setUser(u); fetch("/api/overview").then((r) => (r.ok ? r.json() : null)).then((d) => d && setStats(d.apps)).catch(() => {}); }
+    }).catch(() => {});
 
     const cv = document.getElementById("glow") as HTMLCanvasElement | null;
     if (!cv) return;
@@ -74,7 +77,9 @@ export default function Home() {
             Everything you build, <span className="font-semibold" style={{ background: "linear-gradient(100deg,#4fd1c5,#818cf8,#7c5cfc)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>in one place</span>.
           </h1>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-dim">
-            The ZoidLab app suite, powered by Nyquest. Sign in once — launch any tool.
+            {user
+              ? "Your live footprint across the suite — pick up where you left off, or launch any tool."
+              : "The ZoidLab app suite, powered by Nyquest. Sign in once — launch any tool."}
           </p>
         </div>
 
@@ -88,7 +93,14 @@ export default function Home() {
                   <span className="grid h-11 w-11 place-items-center rounded-xl text-[20px]" style={{ background: `${app.accent}22`, color: app.accent }}>{app.glyph}</span>
                   <div className="text-[16px] font-semibold text-ink">{app.name}</div>
                 </div>
-                <p className="mb-4 text-[13px] leading-relaxed text-dim">{app.tagline}</p>
+                <p className="mb-3 text-[13px] leading-relaxed text-dim">{app.tagline}</p>
+                {live && stats?.[app.slug] && (
+                  <div className="mb-3 text-[12px]">
+                    {stats[app.slug].count != null
+                      ? <><span className="font-semibold text-ink">{stats[app.slug].count}</span> <span className="text-dim">{stats[app.slug].label}</span></>
+                      : <span className="text-dim/50">{stats[app.slug].label} · —</span>}
+                  </div>
+                )}
                 {live ? (
                   <span className="text-[13px] font-semibold text-cy">Open →</span>
                 ) : (
