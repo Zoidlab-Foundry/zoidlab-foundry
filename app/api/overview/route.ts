@@ -9,6 +9,10 @@ const SOURCES: { slug: string; url: string; label: string; extract: (j: any) => 
   { slug: "prompter", url: "https://prompter.zoidlab.ai/api/prompts", label: "prompts", extract: (j) => (Array.isArray(j) ? j.length : j?.prompts?.length) ?? null },
   { slug: "memorymaker", url: "https://memorymaker.zoidlab.ai/api/stores", label: "memory stores", extract: (j) => j?.count ?? j?.stores?.length ?? null },
   { slug: "rag", url: "https://rag.zoidlab.ai/api/knowledge-bases", label: "knowledge bases", extract: (j) => j?.count ?? j?.knowledge_bases?.length ?? null },
+  { slug: "trustgate", url: "https://trustgate.zoidlab.ai/api/policies", label: "policies", extract: (j) => j?.policies?.length ?? null },
+  { slug: "spendguard", url: "https://spendguard.zoidlab.ai/api/budgets", label: "budgets", extract: (j) => j?.budgets?.length ?? null },
+  { slug: "modelbench", url: "https://modelbench.zoidlab.ai/api/runs", label: "benchmark runs", extract: (j) => j?.runs?.length ?? null },
+  { slug: "eval", url: "https://eval.zoidlab.ai/api/runs", label: "eval runs", extract: (j) => j?.runs?.length ?? null },
 ];
 
 export async function GET() {
