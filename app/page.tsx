@@ -1,15 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import { APPS } from "../lib/apps";
+import { REGISTRY } from "../lib/registry";
 
 export default function Home() {
   const [user, setUser] = useState<{ email: string; tier: string } | null>(null);
   const [stats, setStats] = useState<Record<string, { label: string; count: number | null; ok: boolean }> | null>(null);
+  const [health, setHealth] = useState<Record<string, { ok: boolean; ms: number | null }> | null>(null);
 
   useEffect(() => {
     fetch("/api/whoami").then((r) => (r.ok ? r.json() : null)).then((u) => {
       if (u) { setUser(u); fetch("/api/overview").then((r) => (r.ok ? r.json() : null)).then((d) => d && setStats(d.apps)).catch(() => {}); }
     }).catch(() => {});
+    fetch("/api/health-check").then((r) => (r.ok ? r.json() : null)).then((d) => d && setHealth(d.health)).catch(() => {});
 
     const cv = document.getElementById("glow") as HTMLCanvasElement | null;
     if (!cv) return;
@@ -83,41 +85,52 @@ export default function Home() {
           </p>
         </div>
 
-        {/* app tiles */}
+        {/* suite health summary */}
+        {health && (
+          <div className="mb-3 flex items-center gap-2 text-[12px] text-dim">
+            <span className={`h-2 w-2 rounded-full ${Object.values(health).every((h) => h.ok) ? "bg-ok" : "bg-warn"}`} />
+            {Object.values(health).filter((h) => h.ok).length}/{Object.keys(health).length} live packages healthy
+          </div>
+        )}
+
+        {/* app tiles — from the canonical package registry */}
         <div className="grid grid-cols-1 gap-4 pb-8 sm:grid-cols-2">
-          {APPS.map((app) => {
-            const live = app.status === "live" && app.url;
+          {REGISTRY.map((app) => {
+            const live = app.status === "active" && app.url;
+            const h = health?.[app.package_id];
             const Card = (
               <div className={`group h-full rounded-2xl border border-line bg-panel p-5 transition-colors ${live ? "hover:border-cy/50" : "opacity-60"}`}>
                 <div className="mb-3 flex items-center gap-3">
                   <span className="grid h-11 w-11 place-items-center rounded-xl text-[20px]" style={{ background: `${app.accent}22`, color: app.accent }}>{app.glyph}</span>
-                  <div className="text-[16px] font-semibold text-ink">{app.name}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 text-[16px] font-semibold text-ink">
+                      {app.name}
+                      {live && h && <span className={`h-1.5 w-1.5 rounded-full ${h.ok ? "bg-ok" : "bg-bad"}`} title={h.ok ? `healthy${h.ms != null ? ` · ${h.ms}ms` : ""}` : "unreachable"} />}
+                    </div>
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-dim/60">Pkg {app.package_number} · {app.required_plan} · {app.release_channel}</div>
+                  </div>
                 </div>
                 <p className="mb-3 text-[13px] leading-relaxed text-dim">{app.tagline}</p>
-                {live && stats?.[app.slug] && (
+                {live && stats?.[app.package_id] && (
                   <div className="mb-3 text-[12px]">
-                    {stats[app.slug].count != null
-                      ? <><span className="font-semibold text-ink">{stats[app.slug].count}</span> <span className="text-dim">{stats[app.slug].label}</span></>
-                      : <span className="text-dim/50">{stats[app.slug].label} · —</span>}
+                    {stats[app.package_id].count != null
+                      ? <><span className="font-semibold text-ink">{stats[app.package_id].count}</span> <span className="text-dim">{stats[app.package_id].label}</span></>
+                      : <span className="text-dim/50">{stats[app.package_id].label} · —</span>}
                   </div>
                 )}
                 {live ? (
                   <span className="text-[13px] font-semibold text-cy">Open →</span>
                 ) : (
-                  <span className="rounded-full border border-line px-2 py-0.5 text-[10px] uppercase tracking-wider text-dim/70">Coming soon</span>
+                  <span className="rounded-full border border-line px-2 py-0.5 text-[10px] uppercase tracking-wider text-dim/70">Planned</span>
                 )}
               </div>
             );
             return live ? (
-              <a key={app.slug} href={app.url}>{Card}</a>
+              <a key={app.package_id} href={app.url}>{Card}</a>
             ) : (
-              <div key={app.slug}>{Card}</div>
+              <div key={app.package_id}>{Card}</div>
             );
           })}
-          {/* build-more placeholder */}
-          <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-line/70 p-5 text-center text-[12px] leading-relaxed text-dim/60">
-            More ZoidLab apps land here as we build them.
-          </div>
         </div>
 
         <footer className="mt-auto py-6 text-[11px] tracking-[0.2em] text-dim/60">
