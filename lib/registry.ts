@@ -10,7 +10,7 @@ export type RegistryStatus = "active" | "planned";
 
 export interface PackageEntry {
   package_id: string;          // stable slug used across the suite
-  package_number: string;      // "01".."13"
+  package_number: string;      // "01".."16"
   name: string;
   tagline: string;
   domain: string;              // host (no scheme)
@@ -145,6 +145,33 @@ export const REGISTRY: PackageEntry[] = [
     required_plan: "pro", release_channel: "prototype", status: "active", health_path: "/api/health",
     capabilities: ["multi-agent", "typed-handoffs", "bounded-replayable-runs"],
     integration_targets: ["builder", "prompter", "memorymaker", "rag", "mcplab", "trustgate", "spendguard", "eval", "marketplace"],
+    support_url: SUPPORT,
+  },
+  {
+    package_id: "extractlab", package_number: "14", name: "ExtractLab",
+    tagline: "Turn unstructured text into validated, typed JSON with a reusable extraction schema.",
+    domain: "extractlab.zoidlab.ai", url: "https://extractlab.zoidlab.ai", glyph: "⧈", accent: "#34d399",
+    required_plan: "pro", release_channel: "prototype", status: "active", health_path: "/api/health",
+    capabilities: ["schema-driven-extraction", "field-validation", "deterministic-relay"],
+    integration_targets: ["builder", "dataforge", "eval", "marketplace"],
+    support_url: SUPPORT,
+  },
+  {
+    package_id: "dataforge", package_number: "15", name: "DataForge",
+    tagline: "Generate synthetic labeled datasets that export straight into ModelBench, Eval, and RAG.",
+    domain: "dataforge.zoidlab.ai", url: "https://dataforge.zoidlab.ai", glyph: "⚒", accent: "#f59e0b",
+    required_plan: "pro", release_channel: "prototype", status: "active", health_path: "/api/health",
+    capabilities: ["synthetic-data", "classification-qa-structured", "validated-records"],
+    integration_targets: ["modelbench", "eval", "rag", "extractlab", "builder", "marketplace"],
+    support_url: SUPPORT,
+  },
+  {
+    package_id: "insight", package_number: "16", name: "Insight",
+    tagline: "Ask a CSV questions in plain English — the AI plans, the app runs it safely in Python.",
+    domain: "insight.zoidlab.ai", url: "https://insight.zoidlab.ai", glyph: "◑", accent: "#6366f1",
+    required_plan: "pro", release_channel: "prototype", status: "active", health_path: "/api/health",
+    capabilities: ["nl-to-plan", "validated-analysis", "safe-execution"],
+    integration_targets: ["dataforge", "builder", "marketplace"],
     support_url: SUPPORT,
   },
 ];
