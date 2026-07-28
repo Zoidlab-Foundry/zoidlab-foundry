@@ -72,22 +72,32 @@ Rules: recommend only apps listed above, by their exact names. Keep text under 9
 plain text. If the user's need spans several apps, say the order to use them in. If nothing fits,
 say so honestly rather than inventing an app.`;
 
-  let out = "";
-  try {
+  const wire = messages.map((m: { role: string; content: unknown }) => ({
+    role: m.role === "assistant" ? "assistant" : "user",
+    content: String(m.content).slice(0, 2000),
+  }));
+
+  // An empty model reply is a hiccup, not an answer — retry once with a nudge before
+  // giving up (same lesson as the per-app engine: never hand back a blank bubble).
+  const call = async (extra: { role: string; content: string }[]) => {
     const r = await fetch(`${RELAY}/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model: MODEL, temperature: 0.2, max_tokens: 500,
-        messages: [{ role: "system", content: system },
-                   ...messages.map((m: { role: string; content: unknown }) => ({
-                     role: m.role === "assistant" ? "assistant" : "user",
-                     content: String(m.content).slice(0, 2000),
-                   }))],
+        messages: [{ role: "system", content: system }, ...wire, ...extra],
       }),
     });
     const j = await r.json();
-    out = j?.choices?.[0]?.message?.content || "";
+    return (j?.choices?.[0]?.message?.content || "").trim();
+  };
+
+  let out = "";
+  try {
+    out = await call([]);
+    if (!out) {
+      out = await call([{ role: "user", content: "[SYSTEM] Your reply was empty. Reply with exactly one JSON object in the required format." }]);
+    }
   } catch {
     return NextResponse.json({ type: "answer", text: "The concierge could not reach the relay just now — try again.", apps: [] });
   }
