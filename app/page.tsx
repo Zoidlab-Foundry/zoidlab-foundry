@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import ConciergePanel from "../components/ConciergePanel";
 import { REGISTRY } from "../lib/registry";
 
 export default function Home() {
@@ -132,6 +133,8 @@ export default function Home() {
             );
           })}
         </div>
+
+        <ConciergePanel />
 
         <footer className="mt-auto py-6 text-[11px] tracking-[0.2em] text-dim/60">
           ZOIDLAB · POWERED BY <a href="https://nyquest.ai" className="text-dim/80 hover:text-cy">NYQUEST</a>

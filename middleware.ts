@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 const SECRET = new TextEncoder().encode(process.env.BUILDER_SESSION_SECRET || "dev-secret-change-me");
 // /api/providers (canonical catalog) is an OPEN control-plane endpoint apps consume
 // server-side. /api/health-check pings sibling health (no user data).
-const PUBLIC_PREFIXES = ["/enter", "/gate", "/api/session", "/api/handoff", "/api/providers", "/api/health-check"];
+const PUBLIC_PREFIXES = ["/enter", "/gate", "/api/session", "/api/handoff", "/api/providers", "/api/health-check", "/api/assistant/health"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
